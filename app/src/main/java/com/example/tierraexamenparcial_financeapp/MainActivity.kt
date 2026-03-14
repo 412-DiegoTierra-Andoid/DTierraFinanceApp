@@ -7,7 +7,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -39,14 +41,28 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// CLASES DE DATOS
 data class Usuario(
     val nombre: String,
     val saldo: Double
 )
 
+data class TarjetaResumen(
+    val titulo: String,
+    val monto: Double,
+    val color: Color
+)
+
+// DATOS DE PRUEBA
 val miUsuario = Usuario(nombre = "Diego", saldo = 3200.00)
 
-// --- PANTALLA PRINCIPAL
+val misTarjetas = listOf(
+    TarjetaResumen("Presupuesto\ndel Mes",  0.0,    Color(0xFFD6EAF8)),  // Azul claro
+    TarjetaResumen("Egresos",              1573.79, Color(0xFFFDE8E8)),  // Rosa claro
+    TarjetaResumen("Ahorros",              826.21,  Color(0xFFE8F8E8))   // Verde claro
+)
+
+//PANTALLA PRINCIPAL
 @Composable
 fun PantallaInicio() {
     Column(
@@ -54,28 +70,27 @@ fun PantallaInicio() {
             .fillMaxSize()
             .background(Color(0xFFF5F5F5))
             .padding(WindowInsets.statusBars.asPaddingValues())
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(4.dp))
         Encabezado(usuario = miUsuario)
+        SeccionTarjetas(tarjetas = misTarjetas)
     }
 }
 
 // --- ENCABEZADO ---
 @Composable
 fun Encabezado(usuario: Usuario) {
-    // Row pone los elementos uno al lado del otro
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Lado izquierdo: foto + saludo
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Círculo gris con ícono de persona (foto de perfil)
             Box(
                 modifier = Modifier
                     .size(50.dp)
@@ -90,8 +105,6 @@ fun Encabezado(usuario: Usuario) {
                     modifier = Modifier.size(30.dp)
                 )
             }
-
-            // Texto del saludo
             Column {
                 Text(
                     text = "Hola ${usuario.nombre}",
@@ -105,13 +118,90 @@ fun Encabezado(usuario: Usuario) {
                 )
             }
         }
-
-        // Lado derecho: ícono de menú hamburguesa
         Icon(
             imageVector = Icons.Default.Menu,
             contentDescription = "Menú",
             modifier = Modifier.size(28.dp)
         )
+    }
+}
+
+// --- SECCIÓN DE TARJETAS ---
+@Composable
+fun SeccionTarjetas(tarjetas: List<TarjetaResumen>) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Tarjeta grande (Presupuesto)
+        TarjetaGrande(tarjeta = tarjetas[0])
+
+        // Columna con dos tarjetas pequeñas
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            TarjetaPequena(tarjeta = tarjetas[1], modifier = Modifier.weight(1f))
+            TarjetaPequena(tarjeta = tarjetas[2], modifier = Modifier.weight(1f))
+        }
+    }
+}
+
+// Tarjeta grande del lado izquierdo
+@Composable
+fun TarjetaGrande(tarjeta: TarjetaResumen) {
+    Card(
+        modifier = Modifier
+            .width(160.dp)
+            .fillMaxHeight(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = tarjeta.color)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                imageVector = Icons.Default.BarChart,
+                contentDescription = "Presupuesto",
+                modifier = Modifier.size(36.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = tarjeta.titulo,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
+// Tarjeta pequeña del lado derecho
+@Composable
+fun TarjetaPequena(tarjeta: TarjetaResumen, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = tarjeta.color)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(text = tarjeta.titulo, fontSize = 13.sp, color = Color.Gray)
+            Text(
+                text = "$${tarjeta.monto}",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
     }
 }
 
